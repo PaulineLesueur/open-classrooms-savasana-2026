@@ -47,7 +47,7 @@ class AuthTokenFilterTest {
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        SecurityContextHolder.clearContext(); // clean SecurityContext before each test
+        SecurityContextHolder.clearContext();
     }
 
     @Test
@@ -63,11 +63,9 @@ class AuthTokenFilterTest {
 
         authTokenFilter.doFilterInternal(request, response, filterChain);
 
-        // Check that SecurityContext has authentication set
         assertNotNull(SecurityContextHolder.getContext().getAuthentication());
         assertEquals(userDetails, SecurityContextHolder.getContext().getAuthentication().getPrincipal());
 
-        // Verify filterChain.doFilter called
         verify(filterChain).doFilter(request, response);
     }
 
@@ -102,7 +100,6 @@ class AuthTokenFilterTest {
         when(jwtUtils.validateJwtToken(token)).thenReturn(true);
         when(jwtUtils.getUserNameFromJwtToken(token)).thenThrow(new RuntimeException("error"));
 
-        // We expect no exception thrown despite the RuntimeException inside the filter
         assertDoesNotThrow(() -> authTokenFilter.doFilterInternal(request, response, filterChain));
 
         verify(filterChain).doFilter(request, response);
@@ -112,7 +109,6 @@ class AuthTokenFilterTest {
     void parseJwt_returnsTokenWhenHeaderValid() throws Exception {
         when(request.getHeader("Authorization")).thenReturn("Bearer mytoken123");
 
-        // Using reflection to test private method parseJwt
         var method = AuthTokenFilter.class.getDeclaredMethod("parseJwt", HttpServletRequest.class);
         method.setAccessible(true);
         String token = (String) method.invoke(authTokenFilter, request);
