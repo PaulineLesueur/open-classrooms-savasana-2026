@@ -2202,6 +2202,11 @@
   dependencies:
     "@types/node" "*"
 
+"@types/cypress@^0.1.6":
+  version "0.1.6"
+  resolved "https://registry.npmjs.org/@types/cypress/-/cypress-0.1.6.tgz"
+  integrity sha512-FYKQLvCsRYxZ3fp+XsoCiJZ1aK3x17RmaZjHI4Ou43khFkXPycrQaXo9b1J07PNlEfWnRtUc9loxHXzKjSsbYg==
+
 "@types/eslint-scope@^3.7.3":
   version "3.7.4"
   resolved "https://registry.npmjs.org/@types/eslint-scope/-/eslint-scope-3.7.4.tgz"
