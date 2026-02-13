@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="fr"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AuthControllerIT.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">starterjwt in yoga-app Coverage Results</a> &gt; <a href="index.source.html" class="el_package">com.openclassrooms.starterjwt.controllers</a> &gt; <span class="el_source">AuthControllerIT.java</span></div><h1>AuthControllerIT.java</h1><pre class="source lang-java linenums">package com.openclassrooms.starterjwt.controllers;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.openclassrooms.starterjwt.models.User;
+import com.openclassrooms.starterjwt.payload.request.LoginRequest;
+import com.openclassrooms.starterjwt.payload.request.SignupRequest;
+import com.openclassrooms.starterjwt.repository.UserRepository;
+import com.openclassrooms.starterjwt.security.jwt.JwtUtils;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.test.web.servlet.MockMvc;
+
+import java.util.Optional;
+
+import static org.hamcrest.Matchers.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
+import static org.springframework.security.test.context.support.WithMockUser.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
+<span class="fc" id="L27">@SpringBootTest</span>
+@AutoConfigureMockMvc
+<span class="fc" id="L29">public class AuthControllerIT {</span>
+
+    @Autowired
+    private MockMvc mockMvc;
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private JwtUtils jwtUtils;
+
+    @Autowired
+    private ObjectMapper objectMapper;
+
+    @BeforeEach
+    public void setup() {
+<span class="fc" id="L48">        userRepository.deleteAll();</span>
+<span class="fc" id="L49">    }</span>
+
+    @Test
+    public void testRegisterUser_Success() throws Exception {
+<span class="fc" id="L53">        SignupRequest signupRequest = new SignupRequest();</span>
+<span class="fc" id="L54">        signupRequest.setEmail(&quot;test@example.com&quot;);</span>
+<span class="fc" id="L55">        signupRequest.setFirstName(&quot;John&quot;);</span>
+<span class="fc" id="L56">        signupRequest.setLastName(&quot;Doe&quot;);</span>
+<span class="fc" id="L57">        signupRequest.setPassword(&quot;password123&quot;);</span>
+
+<span class="fc" id="L59">        mockMvc.perform(post(&quot;/api/auth/register&quot;)</span>
+<span class="fc" id="L60">                        .contentType(MediaType.APPLICATION_JSON)</span>
+<span class="fc" id="L61">                        .content(objectMapper.writeValueAsString(signupRequest)))</span>
+<span class="fc" id="L62">                .andExpect(status().isOk())</span>
+<span class="fc" id="L63">                .andExpect(jsonPath(&quot;$.message&quot;).value(&quot;User registered successfully!&quot;));</span>
+
+        // Vérifier en base
+<span class="fc" id="L66">        Optional&lt;User&gt; userOpt = userRepository.findByEmail(&quot;test@example.com&quot;);</span>
+<span class="pc bpc" id="L67" title="1 of 2 branches missed.">        assert(userOpt.isPresent());</span>
+<span class="pc bpc" id="L68" title="1 of 2 branches missed.">        assert(userOpt.get().getFirstName().equals(&quot;John&quot;));</span>
+<span class="pc bpc" id="L69" title="1 of 2 branches missed.">        assert(passwordEncoder.matches(&quot;password123&quot;, userOpt.get().getPassword()));</span>
+<span class="fc" id="L70">    }</span>
+
+    @Test
+    public void testRegisterUser_EmailAlreadyTaken() throws Exception {
+<span class="fc" id="L74">        User existingUser = new User();</span>
+<span class="fc" id="L75">        existingUser.setEmail(&quot;taken@example.com&quot;);</span>
+<span class="fc" id="L76">        existingUser.setFirstName(&quot;Jane&quot;);</span>
+<span class="fc" id="L77">        existingUser.setLastName(&quot;Smith&quot;);</span>
+<span class="fc" id="L78">        existingUser.setPassword(passwordEncoder.encode(&quot;pass&quot;));</span>
+<span class="fc" id="L79">        userRepository.save(existingUser);</span>
+
+<span class="fc" id="L81">        SignupRequest signupRequest = new SignupRequest();</span>
+<span class="fc" id="L82">        signupRequest.setEmail(&quot;taken@example.com&quot;);</span>
+<span class="fc" id="L83">        signupRequest.setFirstName(&quot;New&quot;);</span>
+<span class="fc" id="L84">        signupRequest.setLastName(&quot;User&quot;);</span>
+<span class="fc" id="L85">        signupRequest.setPassword(&quot;newpass&quot;);</span>
+
+<span class="fc" id="L87">        mockMvc.perform(post(&quot;/api/auth/register&quot;)</span>
+<span class="fc" id="L88">                        .contentType(MediaType.APPLICATION_JSON)</span>
+<span class="fc" id="L89">                        .content(objectMapper.writeValueAsString(signupRequest)))</span>
+<span class="fc" id="L90">                .andExpect(status().isBadRequest())</span>
+<span class="fc" id="L91">                .andExpect(jsonPath(&quot;$.message&quot;).value(&quot;Error: Email is already taken!&quot;));</span>
+<span class="fc" id="L92">    }</span>
+
+    @Test
+    public void testAuthenticateUser_Success() throws Exception {
+<span class="fc" id="L96">        User user = new User();</span>
+<span class="fc" id="L97">        user.setEmail(&quot;login@example.com&quot;);</span>
+<span class="fc" id="L98">        user.setFirstName(&quot;Log&quot;);</span>
+<span class="fc" id="L99">        user.setLastName(&quot;In&quot;);</span>
+<span class="fc" id="L100">        user.setPassword(passwordEncoder.encode(&quot;mypassword&quot;));</span>
+<span class="fc" id="L101">        userRepository.save(user);</span>
+
+<span class="fc" id="L103">        LoginRequest loginRequest = new LoginRequest();</span>
+<span class="fc" id="L104">        loginRequest.setEmail(&quot;login@example.com&quot;);</span>
+<span class="fc" id="L105">        loginRequest.setPassword(&quot;mypassword&quot;);</span>
+
+<span class="fc" id="L107">        mockMvc.perform(post(&quot;/api/auth/login&quot;)</span>
+<span class="fc" id="L108">                        .contentType(MediaType.APPLICATION_JSON)</span>
+<span class="fc" id="L109">                        .content(objectMapper.writeValueAsString(loginRequest)))</span>
+<span class="fc" id="L110">                .andExpect(status().isOk())</span>
+<span class="fc" id="L111">                .andExpect(jsonPath(&quot;$.username&quot;).value(&quot;login@example.com&quot;))</span>
+<span class="fc" id="L112">                .andExpect(jsonPath(&quot;$.token&quot;, not(emptyString())))</span>
+<span class="fc" id="L113">                .andExpect(jsonPath(&quot;$.firstName&quot;).value(&quot;Log&quot;))</span>
+<span class="fc" id="L114">                .andExpect(jsonPath(&quot;$.lastName&quot;).value(&quot;In&quot;))</span>
+<span class="fc" id="L115">                .andExpect(jsonPath(&quot;$.admin&quot;).value(false));</span>
+<span class="fc" id="L116">    }</span>
+
+    @Test
+    public void testAuthenticateUser_BadCredentials() throws Exception {
+<span class="fc" id="L120">        LoginRequest loginRequest = new LoginRequest();</span>
+<span class="fc" id="L121">        loginRequest.setEmail(&quot;nonexistent@example.com&quot;);</span>
+<span class="fc" id="L122">        loginRequest.setPassword(&quot;wrongpass&quot;);</span>
+
+<span class="fc" id="L124">        mockMvc.perform(post(&quot;/api/auth/login&quot;)</span>
+<span class="fc" id="L125">                        .contentType(MediaType.APPLICATION_JSON)</span>
+<span class="fc" id="L126">                        .content(objectMapper.writeValueAsString(loginRequest)))</span>
+<span class="fc" id="L127">                .andExpect(status().isUnauthorized());</span>
+<span class="fc" id="L128">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

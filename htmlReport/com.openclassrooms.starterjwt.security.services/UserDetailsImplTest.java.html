@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="fr"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>UserDetailsImplTest.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">starterjwt in yoga-app Coverage Results</a> &gt; <a href="index.source.html" class="el_package">com.openclassrooms.starterjwt.security.services</a> &gt; <span class="el_source">UserDetailsImplTest.java</span></div><h1>UserDetailsImplTest.java</h1><pre class="source lang-java linenums">package com.openclassrooms.starterjwt.security.services;
+
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+<span class="fc" id="L7">class UserDetailsImplTest {</span>
+
+    @Test
+    void testGettersAndEquals() {
+<span class="fc" id="L11">        UserDetailsImpl user1 = UserDetailsImpl.builder()</span>
+<span class="fc" id="L12">                .id(1L)</span>
+<span class="fc" id="L13">                .username(&quot;user1&quot;)</span>
+<span class="fc" id="L14">                .firstName(&quot;First&quot;)</span>
+<span class="fc" id="L15">                .lastName(&quot;User&quot;)</span>
+<span class="fc" id="L16">                .admin(true)</span>
+<span class="fc" id="L17">                .password(&quot;secret&quot;)</span>
+<span class="fc" id="L18">                .build();</span>
+
+<span class="fc" id="L20">        UserDetailsImpl user2 = UserDetailsImpl.builder()</span>
+<span class="fc" id="L21">                .id(1L)</span>
+<span class="fc" id="L22">                .username(&quot;user2&quot;)</span>
+<span class="fc" id="L23">                .firstName(&quot;Another&quot;)</span>
+<span class="fc" id="L24">                .lastName(&quot;Person&quot;)</span>
+<span class="fc" id="L25">                .admin(false)</span>
+<span class="fc" id="L26">                .password(&quot;anotherSecret&quot;)</span>
+<span class="fc" id="L27">                .build();</span>
+
+<span class="fc" id="L29">        UserDetailsImpl user3 = UserDetailsImpl.builder()</span>
+<span class="fc" id="L30">                .id(2L)</span>
+<span class="fc" id="L31">                .username(&quot;user3&quot;)</span>
+<span class="fc" id="L32">                .firstName(&quot;Third&quot;)</span>
+<span class="fc" id="L33">                .lastName(&quot;User&quot;)</span>
+<span class="fc" id="L34">                .admin(true)</span>
+<span class="fc" id="L35">                .password(&quot;password&quot;)</span>
+<span class="fc" id="L36">                .build();</span>
+
+<span class="fc" id="L38">        assertTrue(user1.getAdmin());</span>
+<span class="pc bpc" id="L39" title="1 of 2 branches missed.">        assertFalse(user2.getAdmin() == user1.getAdmin());</span>
+
+<span class="fc" id="L41">        assertEquals(user1, user2);</span>
+
+<span class="fc" id="L43">        assertNotEquals(user1, user3);</span>
+
+<span class="fc" id="L45">        assertNotEquals(user1, null);</span>
+<span class="fc" id="L46">        assertNotEquals(user1, new Object());</span>
+
+<span class="fc" id="L48">        assertEquals(user1, user1);</span>
+<span class="fc" id="L49">    }</span>
+
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>
