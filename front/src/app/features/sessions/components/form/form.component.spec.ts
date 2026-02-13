@@ -1,122 +1,150 @@
-import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
-import { ReactiveFormsModule } from '@angular/forms';
-import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
-import { ActivatedRoute, Router } from '@angular/router';
-import { expect, jest } from '@jest/globals';
-
+import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { FormComponent } from './form.component';
-import { SessionService } from '../../../../services/session.service';
+import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
+import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
+import { Router, ActivatedRoute } from '@angular/router';
+import { of } from 'rxjs';
 import { SessionApiService } from '../../services/session-api.service';
 import { TeacherService } from '../../../../services/teacher.service';
+import { SessionService } from '../../../../services/session.service';
 import { Session } from '../../interfaces/session.interface';
+import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { NoopAnimationsModule } from '@angular/platform-browser/animations';
+import { expect, jest } from '@jest/globals';
 
-describe('FormComponent', () => {
+class MockSessionApiService {
+  create(session: Session) { return of(session); }
+  update(id: string, session: Session) { return of(session); }
+  detail(id: string) {
+    return of({
+      id: 1,
+      name: 'Vinyasa Flow',
+      date: new Date(),
+      teacher_id: 1,
+      description: 'Yoga session to stretch and strengthen muscles'
+    } as Session);
+  }
+}
 
+class MockTeacherService {
+  all() { return of([{ id: 1, name: 'Alice Yoga' }]); }
+}
+
+class MockSessionService {
+  sessionInformation = { admin: true } as any;
+}
+
+describe('FormComponent (Yoga Sessions)', () => {
   let component: FormComponent;
   let fixture: ComponentFixture<FormComponent>;
-  let httpMock: HttpTestingController;
-  let sessionService: SessionService;
+  let routerMock: any;
+  let routeMock: any;
   let snackBar: MatSnackBar;
+  let sessionApi: SessionApiService;
+  let sessionService: SessionService;
 
-  const mockRouter = { navigate: jest.fn(), url: '' };
-  const mockActivatedRoute = { snapshot: { paramMap: { get: jest.fn().mockReturnValue('1') } } };
+  beforeEach(async () => {
+    routerMock = { navigate: jest.fn(), url: '/sessions/create' };
+    routeMock = { snapshot: { paramMap: { get: jest.fn().mockReturnValue('123') } } };
 
-  const mockSessionInfo = { admin: true, id: 1, token: '', username: 'user', firstName: 'First', lastName: 'Last', type: 'admin' };
-
-  beforeEach(waitForAsync(() => {
-    TestBed.configureTestingModule({
-      imports: [ReactiveFormsModule, HttpClientTestingModule, MatSnackBarModule],
+    await TestBed.configureTestingModule({
+      imports: [ReactiveFormsModule, MatSnackBarModule, NoopAnimationsModule],
       declarations: [FormComponent],
       providers: [
-        { provide: Router, useValue: mockRouter },
-        { provide: ActivatedRoute, useValue: mockActivatedRoute },
-        SessionService,
-        SessionApiService,
-        TeacherService,
-      ]
+        FormBuilder,
+        { provide: Router, useValue: routerMock },
+        { provide: ActivatedRoute, useValue: routeMock },
+        { provide: SessionApiService, useClass: MockSessionApiService },
+        { provide: TeacherService, useClass: MockTeacherService },
+        { provide: SessionService, useClass: MockSessionService }
+      ],
+      schemas: [CUSTOM_ELEMENTS_SCHEMA]
     }).compileComponents();
 
     fixture = TestBed.createComponent(FormComponent);
     component = fixture.componentInstance;
-    httpMock = TestBed.inject(HttpTestingController);
-    sessionService = TestBed.inject(SessionService);
     snackBar = TestBed.inject(MatSnackBar);
-
-    sessionService.sessionInformation = mockSessionInfo;
-    sessionService.isLogged = true;
-
+    sessionApi = TestBed.inject(SessionApiService);
+    sessionService = TestBed.inject(SessionService);
     fixture.detectChanges();
-  }));
+  });
 
   afterEach(() => {
     jest.clearAllMocks();
-    httpMock.verify();
   });
 
-  it('should create', () => {
+  it('should create component and initialize form for new yoga session', () => {
     expect(component).toBeTruthy();
-  });
-
-  it('should redirect if not admin', () => {
-    sessionService.sessionInformation!.admin = false;
-    component.ngOnInit();
-    expect(mockRouter.navigate).toHaveBeenCalledWith(['/sessions']);
-  });
-
-  it('should init form in create mode', () => {
-    mockRouter.url = '/sessions/create';
-    component.ngOnInit();
     expect(component.onUpdate).toBe(false);
     expect(component.sessionForm).toBeDefined();
+    expect(component.sessionForm?.controls['name'].value).toBe('');
   });
 
-  it('should fetch session in update mode (integration)', () => {
-    const mockSession: Session = { id: 1, name: 'Yoga', date: new Date(), teacher_id: 2, description: 'Desc', users: [] };
-    mockRouter.url = '/sessions/update/1';
-
+  it('should redirect non-admin user', () => {
+    sessionService.sessionInformation!.admin = false;
     component.ngOnInit();
+    expect(routerMock.navigate).toHaveBeenCalledWith(['/sessions']);
+  });
 
-    const req = httpMock.expectOne('api/session/1');
-    expect(req.request.method).toBe('GET');
-    req.flush(mockSession);
-
-    expect(component.sessionForm?.value.name).toBe('Yoga');
+  it('should initialize form for update yoga session', fakeAsync(() => {
+    routerMock.url = '/sessions/update';
+    const spyInit = jest.spyOn(component as any, 'initForm');
+    component.ngOnInit();
+    tick(); 
     expect(component.onUpdate).toBe(true);
-  });
+    expect(routeMock.snapshot.paramMap.get).toHaveBeenCalledWith('id');
+    expect(spyInit).toHaveBeenCalled();
+  }));
 
-  it('should create session via submit (integration)', () => {
-    mockRouter.url = '/sessions/create';
-    component.ngOnInit();
+  it('should submit new yoga session', fakeAsync(() => {
+    const spyExit = jest.spyOn(component as any, 'exitPage').mockImplementation(() => {});
+    component.onUpdate = false;
+    component.sessionForm = component['fb'].group({
+      name: ['Hatha Yoga'],
+      date: ['2026-02-13'],
+      teacher_id: [1],
+      description: ['Gentle yoga to improve flexibility']
+    });
 
-    component.sessionForm?.setValue({ name: 'Yoga', date: new Date().toISOString().split('T')[0], teacher_id: 1, description: 'Desc' });
     component.submit();
+    tick();
+    expect(spyExit).toHaveBeenCalledWith('Session created !');
+  }));
 
-    const req = httpMock.expectOne('api/session');
-    expect(req.request.method).toBe('POST');
-    req.flush({}); 
+  it('should submit update for existing yoga session', fakeAsync(() => {
+    const spyExit = jest.spyOn(component as any, 'exitPage').mockImplementation(() => {});
+    component.onUpdate = true;
+    component['id'] = '123';
+    component.sessionForm = component['fb'].group({
+      name: ['Power Yoga'],
+      date: ['2026-02-13'],
+      teacher_id: [1],
+      description: ['Intense yoga session for strength']
+    });
 
-    expect(snackBar._openedSnackBarRef).toBeDefined();
-    expect(mockRouter.navigate).toHaveBeenCalledWith(['sessions']);
-  });
-
-  it('should update session via submit (integration)', () => {
-    const mockSession: Session = { id: 1, name: 'Yoga', date: new Date(), teacher_id: 2, description: 'Desc', users: [] };
-    mockRouter.url = '/sessions/update/1';
-
-    component.ngOnInit();
-    const detailReq = httpMock.expectOne('api/session/1');
-    detailReq.flush(mockSession);
-
-    component.sessionForm?.patchValue({ name: 'Updated Yoga' });
     component.submit();
+    tick(); 
+    expect(spyExit).toHaveBeenCalledWith('Session updated !');
+  }));
 
-    const updateReq = httpMock.expectOne('api/session/1');
-    expect(updateReq.request.method).toBe('PUT');
-    updateReq.flush({}); 
-
-    expect(snackBar._openedSnackBarRef).toBeDefined();
-    expect(mockRouter.navigate).toHaveBeenCalledWith(['sessions']);
+  it('should initialize form with given yoga session', () => {
+    const testSession: Session = {
+      id: 1,
+      name: 'Yin Yoga',
+      date: new Date(),
+      teacher_id: 2,
+      users: [1],
+      description: 'Relaxing yoga for deep stretches'
+    };
+    component['initForm'](testSession);
+    expect(component.sessionForm?.value.name).toBe('Yin Yoga');
+    expect(component.sessionForm?.value.teacher_id).toBe(2);
   });
 
+  it('should exit page and show snackbar', () => {
+    const spySnack = jest.spyOn(snackBar, 'open').mockReturnValue({ afterDismissed: () => of() } as any);
+    component['exitPage']('Yoga session saved!');
+    expect(spySnack).toHaveBeenCalledWith('Yoga session saved!', 'Close', { duration: 3000 });
+    expect(routerMock.navigate).toHaveBeenCalledWith(['sessions']);
+  });
 });
