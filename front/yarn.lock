@@ -2202,6 +2202,11 @@
   dependencies:
     "@types/node" "*"
 
+"@types/cypress@^0.1.6":
+  version "0.1.6"
+  resolved "https://registry.npmjs.org/@types/cypress/-/cypress-0.1.6.tgz"
+  integrity sha512-FYKQLvCsRYxZ3fp+XsoCiJZ1aK3x17RmaZjHI4Ou43khFkXPycrQaXo9b1J07PNlEfWnRtUc9loxHXzKjSsbYg==
+
 "@types/eslint-scope@^3.7.3":
   version "3.7.4"
   resolved "https://registry.npmjs.org/@types/eslint-scope/-/eslint-scope-3.7.4.tgz"
@@ -2306,6 +2311,11 @@
   version "3.0.1"
   resolved "https://registry.npmjs.org/@types/mime/-/mime-3.0.1.tgz"
   integrity sha512-Y4XFY5VJAuw0FgAqPNd6NNoV44jbq9Bz2L7Rh/J6jLTiHBSBJa9fxqQIvkIld4GsoDOcCbvzOUAbLPsSKKg+uA==
+
+"@types/mocha@^10.0.10":
+  version "10.0.10"
+  resolved "https://registry.npmjs.org/@types/mocha/-/mocha-10.0.10.tgz"
+  integrity sha512-xPyYSz1cMPnJQhl0CLMH68j3gprKZaTjG3s5Vi+fDgx+uhG9NOXwbVt52eFS8ECyXhyKcjDLCBEqBExKuiZb7Q==
 
 "@types/node@*":
   version "18.7.13"

@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="fr"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TeacherServiceTest.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">starterjwt in yoga-app Coverage Results</a> &gt; <a href="index.source.html" class="el_package">com.openclassrooms.starterjwt.services</a> &gt; <span class="el_source">TeacherServiceTest.java</span></div><h1>TeacherServiceTest.java</h1><pre class="source lang-java linenums">package com.openclassrooms.starterjwt.services;
+
+import com.openclassrooms.starterjwt.models.Teacher;
+import com.openclassrooms.starterjwt.repository.TeacherRepository;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.util.List;
+import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
+@ExtendWith(MockitoExtension.class)
+<span class="fc" id="L18">class TeacherServiceTest {</span>
+
+    @Mock
+    private TeacherRepository teacherRepository;
+
+    @InjectMocks
+    private TeacherService teacherService;
+
+    @Test
+    void findAll_shouldReturnTeachers() {
+<span class="fc" id="L28">        List&lt;Teacher&gt; teachers = List.of(new Teacher(), new Teacher());</span>
+<span class="fc" id="L29">        when(teacherRepository.findAll()).thenReturn(teachers);</span>
+
+<span class="fc" id="L31">        List&lt;Teacher&gt; result = teacherService.findAll();</span>
+
+<span class="fc" id="L33">        assertEquals(2, result.size());</span>
+<span class="fc" id="L34">        verify(teacherRepository).findAll();</span>
+<span class="fc" id="L35">    }</span>
+
+    @Test
+    void findById_shouldReturnTeacher_whenFound() {
+<span class="fc" id="L39">        Teacher teacher = new Teacher();</span>
+<span class="fc" id="L40">        when(teacherRepository.findById(1L)).thenReturn(Optional.of(teacher));</span>
+
+<span class="fc" id="L42">        Teacher result = teacherService.findById(1L);</span>
+
+<span class="fc" id="L44">        assertNotNull(result);</span>
+<span class="fc" id="L45">        verify(teacherRepository).findById(1L);</span>
+<span class="fc" id="L46">    }</span>
+
+    @Test
+    void findById_shouldReturnNull_whenNotFound() {
+<span class="fc" id="L50">        when(teacherRepository.findById(1L)).thenReturn(Optional.empty());</span>
+
+<span class="fc" id="L52">        Teacher result = teacherService.findById(1L);</span>
+
+<span class="fc" id="L54">        assertNull(result);</span>
+<span class="fc" id="L55">        verify(teacherRepository).findById(1L);</span>
+<span class="fc" id="L56">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

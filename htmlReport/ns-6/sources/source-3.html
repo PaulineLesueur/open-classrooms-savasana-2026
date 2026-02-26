@@ -1,0 +1,218 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=windows-1252"> 
+  <title>Coverage Report > User</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">com.openclassrooms.starterjwt.models</a>
+</div>
+
+<h1>Coverage Summary for Class: User (com.openclassrooms.starterjwt.models)</h1>
+
+<table class="coverageStats">
+
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Branch, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">User</td>
+<td class="coverageStat">
+  <span class="percent">
+    73,3%
+  </span>
+  <span class="absValue">
+    (11/15)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    22,2%
+  </span>
+  <span class="absValue">
+    (4/18)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    73,3%
+  </span>
+  <span class="absValue">
+    (11/15)
+  </span>
+</td>
+</tr>
+  <tr>
+    <td class="name">User$HibernateProxy$6Tyr84SP</td>
+  </tr>
+  <tr>
+    <td class="name">User$HibernateProxy$tTWfIQvv</td>
+  </tr>
+  <tr>
+    <td class="name">User$UserBuilder</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+  </tr>
+<tr>
+  <td class="name"><strong>Total</strong></td>
+<td class="coverageStat">
+  <span class="percent">
+    68,8%
+  </span>
+  <span class="absValue">
+    (11/16)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    22,2%
+  </span>
+  <span class="absValue">
+    (4/18)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    68,8%
+  </span>
+  <span class="absValue">
+    (11/16)
+  </span>
+</td>
+</tr>
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package com.openclassrooms.starterjwt.models;
+&nbsp;
+&nbsp;import lombok.*;
+&nbsp;import lombok.experimental.Accessors;
+&nbsp;import org.hibernate.annotations.UpdateTimestamp;
+&nbsp;import org.springframework.data.annotation.CreatedDate;
+&nbsp;import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+&nbsp;
+&nbsp;import javax.persistence.*;
+&nbsp;import javax.validation.constraints.Email;
+&nbsp;import javax.validation.constraints.Size;
+&nbsp;import java.time.LocalDateTime;
+&nbsp;
+&nbsp;@Entity
+&nbsp;@Table(name = &quot;USERS&quot;, uniqueConstraints = {
+&nbsp;    @UniqueConstraint(columnNames = &quot;email&quot;)
+&nbsp;})
+<b class="fc">&nbsp;@Data</b>
+&nbsp;@Accessors(chain = true)
+&nbsp;@EntityListeners(AuditingEntityListener.class)
+<b class="nc">&nbsp;@EqualsAndHashCode(of = {&quot;id&quot;})</b>
+<b class="nc">&nbsp;@Builder</b>
+<b class="fc">&nbsp;@NoArgsConstructor</b>
+<b class="pc">&nbsp;@RequiredArgsConstructor</b>
+<b class="nc">&nbsp;@AllArgsConstructor</b>
+<b class="nc">&nbsp;@ToString</b>
+&nbsp;public class User {
+&nbsp;  @Id
+&nbsp;  @GeneratedValue(strategy = GenerationType.IDENTITY)
+<b class="fc">&nbsp;  private Long id;</b>
+&nbsp;
+&nbsp;  @NonNull
+&nbsp;  @Size(max = 50)
+&nbsp;  @Email
+<b class="fc">&nbsp;  private String email;</b>
+&nbsp;
+&nbsp;  @NonNull
+&nbsp;  @Size(max = 20)
+&nbsp;  @Column(name = &quot;last_name&quot;)
+<b class="fc">&nbsp;  private String lastName;</b>
+&nbsp;
+&nbsp;  @NonNull
+&nbsp;  @Size(max = 20)
+&nbsp;  @Column(name = &quot;first_name&quot;)
+<b class="fc">&nbsp;  private String firstName;</b>
+&nbsp;
+&nbsp;  @NonNull
+&nbsp;  @Size(max = 120)
+<b class="fc">&nbsp;  private String password;</b>
+&nbsp;
+&nbsp;  @NonNull
+<b class="fc">&nbsp;  private boolean admin;</b>
+&nbsp;
+&nbsp;  @CreatedDate
+&nbsp;  @Column(name = &quot;created_at&quot;, updatable = false)
+<b class="fc">&nbsp;  private LocalDateTime createdAt;</b>
+&nbsp;
+&nbsp;  @UpdateTimestamp
+&nbsp;  @Column(name = &quot;updated_at&quot;)
+<b class="fc">&nbsp;  private LocalDateTime updatedAt;</b>
+&nbsp;
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2026-01-30 12:40</div>
+</div>
+</body>
+</html>

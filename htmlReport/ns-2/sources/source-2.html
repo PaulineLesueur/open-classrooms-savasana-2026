@@ -1,0 +1,226 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=windows-1252"> 
+  <title>Coverage Report > SessionController</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">com.openclassrooms.starterjwt.controllers</a>
+</div>
+
+<h1>Coverage Summary for Class: SessionController (com.openclassrooms.starterjwt.controllers)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Branch, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">SessionController</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (9/9)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (4/4)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    94,4%
+  </span>
+  <span class="absValue">
+    (34/36)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package com.openclassrooms.starterjwt.controllers;
+&nbsp;
+&nbsp;
+&nbsp;import com.openclassrooms.starterjwt.dto.SessionDto;
+&nbsp;import com.openclassrooms.starterjwt.mapper.SessionMapper;
+&nbsp;import com.openclassrooms.starterjwt.models.Session;
+&nbsp;import com.openclassrooms.starterjwt.services.SessionService;
+&nbsp;import lombok.extern.log4j.Log4j2;
+&nbsp;import org.springframework.http.ResponseEntity;
+&nbsp;import org.springframework.web.bind.annotation.*;
+&nbsp;
+&nbsp;import javax.validation.Valid;
+&nbsp;import java.util.List;
+&nbsp;
+&nbsp;@CrossOrigin(origins = &quot;*&quot;, maxAge = 3600)
+&nbsp;@RestController
+&nbsp;@RequestMapping(&quot;/api/session&quot;)
+<b class="fc">&nbsp;@Log4j2</b>
+&nbsp;public class SessionController {
+&nbsp;    private final SessionMapper sessionMapper;
+&nbsp;    private final SessionService sessionService;
+&nbsp;
+&nbsp;
+&nbsp;    public SessionController(SessionService sessionService,
+<b class="fc">&nbsp;                             SessionMapper sessionMapper) {</b>
+<b class="fc">&nbsp;        this.sessionMapper = sessionMapper;</b>
+<b class="fc">&nbsp;        this.sessionService = sessionService;</b>
+<b class="fc">&nbsp;    }</b>
+&nbsp;
+&nbsp;    @GetMapping(&quot;/{id}&quot;)
+&nbsp;    public ResponseEntity&lt;?&gt; findById(@PathVariable(&quot;id&quot;) String id) {
+&nbsp;        try {
+<b class="fc">&nbsp;            Session session = this.sessionService.getById(Long.valueOf(id));</b>
+&nbsp;
+<b class="fc">&nbsp;            if (session == null) {</b>
+<b class="fc">&nbsp;                return ResponseEntity.notFound().build();</b>
+&nbsp;            }
+&nbsp;
+<b class="fc">&nbsp;            return ResponseEntity.ok().body(this.sessionMapper.toDto(session));</b>
+<b class="fc">&nbsp;        } catch (NumberFormatException e) {</b>
+<b class="fc">&nbsp;            return ResponseEntity.badRequest().build();</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    @GetMapping()
+&nbsp;    public ResponseEntity&lt;?&gt; findAll() {
+<b class="fc">&nbsp;        List&lt;Session&gt; sessions = this.sessionService.findAll();</b>
+&nbsp;
+<b class="fc">&nbsp;        return ResponseEntity.ok().body(this.sessionMapper.toDto(sessions));</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    @PostMapping()
+&nbsp;    public ResponseEntity&lt;?&gt; create(@Valid @RequestBody SessionDto sessionDto) {
+<b class="fc">&nbsp;        log.info(sessionDto);</b>
+&nbsp;
+<b class="fc">&nbsp;        Session session = this.sessionService.create(this.sessionMapper.toEntity(sessionDto));</b>
+&nbsp;
+<b class="fc">&nbsp;        log.info(session);</b>
+<b class="fc">&nbsp;        return ResponseEntity.ok().body(this.sessionMapper.toDto(session));</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    @PutMapping(&quot;{id}&quot;)
+&nbsp;    public ResponseEntity&lt;?&gt; update(@PathVariable(&quot;id&quot;) String id, @Valid @RequestBody SessionDto sessionDto) {
+&nbsp;        try {
+<b class="fc">&nbsp;            Session session = this.sessionService.update(Long.parseLong(id), this.sessionMapper.toEntity(sessionDto));</b>
+&nbsp;
+<b class="fc">&nbsp;            return ResponseEntity.ok().body(this.sessionMapper.toDto(session));</b>
+<b class="nc">&nbsp;        } catch (NumberFormatException e) {</b>
+<b class="nc">&nbsp;            return ResponseEntity.badRequest().build();</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    @DeleteMapping(&quot;{id}&quot;)
+&nbsp;    public ResponseEntity&lt;?&gt; save(@PathVariable(&quot;id&quot;) String id) {
+&nbsp;        try {
+<b class="fc">&nbsp;            Session session = this.sessionService.getById(Long.valueOf(id));</b>
+&nbsp;
+<b class="fc">&nbsp;            if (session == null) {</b>
+<b class="fc">&nbsp;                return ResponseEntity.notFound().build();</b>
+&nbsp;            }
+&nbsp;
+<b class="fc">&nbsp;            this.sessionService.delete(Long.parseLong(id));</b>
+<b class="fc">&nbsp;            return ResponseEntity.ok().build();</b>
+<b class="fc">&nbsp;        } catch (NumberFormatException e) {</b>
+<b class="fc">&nbsp;            return ResponseEntity.badRequest().build();</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    @PostMapping(&quot;{id}/participate/{userId}&quot;)
+&nbsp;    public ResponseEntity&lt;?&gt; participate(@PathVariable(&quot;id&quot;) String id, @PathVariable(&quot;userId&quot;) String userId) {
+&nbsp;        try {
+<b class="fc">&nbsp;            this.sessionService.participate(Long.parseLong(id), Long.parseLong(userId));</b>
+&nbsp;
+<b class="fc">&nbsp;            return ResponseEntity.ok().build();</b>
+<b class="fc">&nbsp;        } catch (NumberFormatException e) {</b>
+<b class="fc">&nbsp;            return ResponseEntity.badRequest().build();</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    @DeleteMapping(&quot;{id}/participate/{userId}&quot;)
+&nbsp;    public ResponseEntity&lt;?&gt; noLongerParticipate(@PathVariable(&quot;id&quot;) String id, @PathVariable(&quot;userId&quot;) String userId) {
+&nbsp;        try {
+<b class="fc">&nbsp;            this.sessionService.noLongerParticipate(Long.parseLong(id), Long.parseLong(userId));</b>
+&nbsp;
+<b class="fc">&nbsp;            return ResponseEntity.ok().build();</b>
+<b class="fc">&nbsp;        } catch (NumberFormatException e) {</b>
+<b class="fc">&nbsp;            return ResponseEntity.badRequest().build();</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2026-01-30 12:40</div>
+</div>
+</body>
+</html>

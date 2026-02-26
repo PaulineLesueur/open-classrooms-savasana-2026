@@ -12,6 +12,20 @@ export class SessionService {
 
   private isLoggedSubject = new BehaviorSubject<boolean>(this.isLogged);
 
+  constructor() {
+    // restore from localStorage if available (helps e2e tests and real app)
+    const data = localStorage.getItem('sessionInformation');
+    if (data) {
+      try {
+        this.sessionInformation = JSON.parse(data) as SessionInformation;
+        this.isLogged = true;
+      } catch {
+        // ignore parse errors
+      }
+    }
+    this.next();
+  }
+
   public $isLogged(): Observable<boolean> {
     return this.isLoggedSubject.asObservable();
   }
@@ -19,12 +33,14 @@ export class SessionService {
   public logIn(user: SessionInformation): void {
     this.sessionInformation = user;
     this.isLogged = true;
+    localStorage.setItem('sessionInformation', JSON.stringify(user));
     this.next();
   }
 
   public logOut(): void {
     this.sessionInformation = undefined;
     this.isLogged = false;
+    localStorage.removeItem('sessionInformation');
     this.next();
   }
 

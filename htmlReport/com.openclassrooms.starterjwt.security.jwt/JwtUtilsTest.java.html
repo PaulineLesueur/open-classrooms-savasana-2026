@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="fr"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>JwtUtilsTest.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">starterjwt in yoga-app Coverage Results</a> &gt; <a href="index.source.html" class="el_package">com.openclassrooms.starterjwt.security.jwt</a> &gt; <span class="el_source">JwtUtilsTest.java</span></div><h1>JwtUtilsTest.java</h1><pre class="source lang-java linenums">package com.openclassrooms.starterjwt.security.jwt;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
+import java.util.Date;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.springframework.security.core.Authentication;
+
+import com.openclassrooms.starterjwt.security.services.UserDetailsImpl;
+
+import io.jsonwebtoken.*;
+
+<span class="fc" id="L18">class JwtUtilsTest {</span>
+
+    private JwtUtils jwtUtils;
+
+    @Mock
+    private Authentication authentication;
+
+    @BeforeEach
+    void setUp() {
+<span class="fc" id="L27">        MockitoAnnotations.openMocks(this);</span>
+<span class="fc" id="L28">        jwtUtils = new JwtUtils();</span>
+<span class="fc" id="L29">        jwtUtils.jwtSecret = &quot;testSecretKey1234567890&quot;;</span>
+<span class="fc" id="L30">        jwtUtils.jwtExpirationMs = 3600000;</span>
+<span class="fc" id="L31">    }</span>
+
+    @Test
+    void generateJwtToken_shouldReturnValidToken() {
+<span class="fc" id="L35">        UserDetailsImpl userDetails = UserDetailsImpl.builder()</span>
+<span class="fc" id="L36">                .username(&quot;testuser&quot;)</span>
+<span class="fc" id="L37">                .build();</span>
+
+<span class="fc" id="L39">        when(authentication.getPrincipal()).thenReturn(userDetails);</span>
+
+<span class="fc" id="L41">        String token = jwtUtils.generateJwtToken(authentication);</span>
+
+<span class="fc" id="L43">        assertNotNull(token);</span>
+<span class="fc" id="L44">        String usernameFromToken = jwtUtils.getUserNameFromJwtToken(token);</span>
+<span class="fc" id="L45">        assertEquals(&quot;testuser&quot;, usernameFromToken);</span>
+<span class="fc" id="L46">    }</span>
+
+    @Test
+    void getUserNameFromJwtToken_shouldReturnUsername() {
+<span class="fc" id="L50">        String token = Jwts.builder()</span>
+<span class="fc" id="L51">                .setSubject(&quot;myusername&quot;)</span>
+<span class="fc" id="L52">                .setIssuedAt(new Date())</span>
+<span class="fc" id="L53">                .setExpiration(new Date(System.currentTimeMillis() + 60000))</span>
+<span class="fc" id="L54">                .signWith(SignatureAlgorithm.HS512, jwtUtils.jwtSecret)</span>
+<span class="fc" id="L55">                .compact();</span>
+
+<span class="fc" id="L57">        String username = jwtUtils.getUserNameFromJwtToken(token);</span>
+
+<span class="fc" id="L59">        assertEquals(&quot;myusername&quot;, username);</span>
+<span class="fc" id="L60">    }</span>
+
+    @Test
+    void validateJwtToken_shouldReturnTrueForValidToken() {
+<span class="fc" id="L64">        String token = Jwts.builder()</span>
+<span class="fc" id="L65">                .setSubject(&quot;user&quot;)</span>
+<span class="fc" id="L66">                .setIssuedAt(new Date())</span>
+<span class="fc" id="L67">                .setExpiration(new Date(System.currentTimeMillis() + 60000))</span>
+<span class="fc" id="L68">                .signWith(SignatureAlgorithm.HS512, jwtUtils.jwtSecret)</span>
+<span class="fc" id="L69">                .compact();</span>
+
+<span class="fc" id="L71">        assertTrue(jwtUtils.validateJwtToken(token));</span>
+<span class="fc" id="L72">    }</span>
+
+    @Test
+    void validateJwtToken_shouldReturnFalseForInvalidSignature() {
+<span class="fc" id="L76">        String token = Jwts.builder()</span>
+<span class="fc" id="L77">                .setSubject(&quot;user&quot;)</span>
+<span class="fc" id="L78">                .setIssuedAt(new Date())</span>
+<span class="fc" id="L79">                .setExpiration(new Date(System.currentTimeMillis() + 60000))</span>
+<span class="fc" id="L80">                .signWith(SignatureAlgorithm.HS512, &quot;wrongSecret&quot;)</span>
+<span class="fc" id="L81">                .compact();</span>
+
+<span class="fc" id="L83">        assertFalse(jwtUtils.validateJwtToken(token));</span>
+<span class="fc" id="L84">    }</span>
+
+    @Test
+    void validateJwtToken_shouldReturnFalseForMalformedToken() {
+<span class="fc" id="L88">        String malformedToken = &quot;this.is.not.a.jwt&quot;;</span>
+
+<span class="fc" id="L90">        assertFalse(jwtUtils.validateJwtToken(malformedToken));</span>
+<span class="fc" id="L91">    }</span>
+
+    @Test
+    void validateJwtToken_shouldReturnFalseForExpiredToken() throws InterruptedException {
+<span class="fc" id="L95">        String token = Jwts.builder()</span>
+<span class="fc" id="L96">                .setSubject(&quot;user&quot;)</span>
+<span class="fc" id="L97">                .setIssuedAt(new Date(System.currentTimeMillis() - 10000))</span>
+<span class="fc" id="L98">                .setExpiration(new Date(System.currentTimeMillis() - 5000))</span>
+<span class="fc" id="L99">                .signWith(SignatureAlgorithm.HS512, jwtUtils.jwtSecret)</span>
+<span class="fc" id="L100">                .compact();</span>
+
+<span class="fc" id="L102">        assertFalse(jwtUtils.validateJwtToken(token));</span>
+<span class="fc" id="L103">    }</span>
+
+    @Test
+    void validateJwtToken_shouldReturnFalseForUnsupportedToken() {
+<span class="fc" id="L107">        assertFalse(jwtUtils.validateJwtToken(null));</span>
+<span class="fc" id="L108">        assertFalse(jwtUtils.validateJwtToken(&quot;&quot;));</span>
+<span class="fc" id="L109">    }</span>
+
+    @Test
+    void validateJwtToken_shouldReturnFalseForEmptyClaims() {
+<span class="fc" id="L113">        assertFalse(jwtUtils.validateJwtToken(&quot;&quot;));</span>
+<span class="fc" id="L114">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

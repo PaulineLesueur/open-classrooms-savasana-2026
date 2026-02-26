@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="fr"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SessionServiceTest.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">starterjwt in yoga-app Coverage Results</a> &gt; <a href="index.source.html" class="el_package">com.openclassrooms.starterjwt.services</a> &gt; <span class="el_source">SessionServiceTest.java</span></div><h1>SessionServiceTest.java</h1><pre class="source lang-java linenums">package com.openclassrooms.starterjwt.services;
+
+import com.openclassrooms.starterjwt.exception.BadRequestException;
+import com.openclassrooms.starterjwt.exception.NotFoundException;
+import com.openclassrooms.starterjwt.models.Session;
+import com.openclassrooms.starterjwt.models.User;
+import com.openclassrooms.starterjwt.repository.SessionRepository;
+import com.openclassrooms.starterjwt.repository.UserRepository;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
+@ExtendWith(MockitoExtension.class)
+<span class="fc" id="L23">class SessionServiceTest {</span>
+
+    @Mock
+    private SessionRepository sessionRepository;
+
+    @Mock
+    private UserRepository userRepository;
+
+    @InjectMocks
+    private SessionService sessionService;
+
+    @Test
+    void create_shouldSaveSession() {
+<span class="fc" id="L36">        Session session = new Session();</span>
+<span class="fc" id="L37">        when(sessionRepository.save(session)).thenReturn(session);</span>
+
+<span class="fc" id="L39">        Session result = sessionService.create(session);</span>
+
+<span class="fc" id="L41">        assertNotNull(result);</span>
+<span class="fc" id="L42">        verify(sessionRepository).save(session);</span>
+<span class="fc" id="L43">    }</span>
+
+    @Test
+    void delete_shouldCallRepository() {
+<span class="fc" id="L47">        sessionService.delete(1L);</span>
+
+<span class="fc" id="L49">        verify(sessionRepository).deleteById(1L);</span>
+<span class="fc" id="L50">    }</span>
+
+    @Test
+    void findAll_shouldReturnSessions() {
+<span class="fc" id="L54">        List&lt;Session&gt; sessions = List.of(new Session(), new Session());</span>
+<span class="fc" id="L55">        when(sessionRepository.findAll()).thenReturn(sessions);</span>
+
+<span class="fc" id="L57">        List&lt;Session&gt; result = sessionService.findAll();</span>
+
+<span class="fc" id="L59">        assertEquals(2, result.size());</span>
+<span class="fc" id="L60">    }</span>
+
+    @Test
+    void getById_shouldReturnSession() {
+<span class="fc" id="L64">        Session session = new Session();</span>
+<span class="fc" id="L65">        when(sessionRepository.findById(1L)).thenReturn(Optional.of(session));</span>
+
+<span class="fc" id="L67">        Session result = sessionService.getById(1L);</span>
+
+<span class="fc" id="L69">        assertNotNull(result);</span>
+<span class="fc" id="L70">    }</span>
+
+    @Test
+    void getById_shouldReturnNull_whenNotFound() {
+<span class="fc" id="L74">        when(sessionRepository.findById(1L)).thenReturn(Optional.empty());</span>
+
+<span class="fc" id="L76">        Session result = sessionService.getById(1L);</span>
+
+<span class="fc" id="L78">        assertNull(result);</span>
+<span class="fc" id="L79">    }</span>
+
+    @Test
+    void update_shouldUpdateSession() {
+<span class="fc" id="L83">        Session session = new Session();</span>
+<span class="fc" id="L84">        when(sessionRepository.save(session)).thenReturn(session);</span>
+
+<span class="fc" id="L86">        Session result = sessionService.update(1L, session);</span>
+
+<span class="fc" id="L88">        assertEquals(1L, session.getId());</span>
+<span class="fc" id="L89">        verify(sessionRepository).save(session);</span>
+<span class="fc" id="L90">    }</span>
+
+    @Test
+    void participate_shouldAddUserToSession() {
+<span class="fc" id="L94">        Session session = new Session();</span>
+<span class="fc" id="L95">        session.setId(1L);</span>
+<span class="fc" id="L96">        session.setUsers(new ArrayList&lt;&gt;());</span>
+
+<span class="fc" id="L98">        User user = new User();</span>
+<span class="fc" id="L99">        user.setId(2L);</span>
+
+<span class="fc" id="L101">        when(sessionRepository.findById(1L)).thenReturn(Optional.of(session));</span>
+<span class="fc" id="L102">        when(userRepository.findById(2L)).thenReturn(Optional.of(user));</span>
+
+<span class="fc" id="L104">        sessionService.participate(1L, 2L);</span>
+
+<span class="fc" id="L106">        assertEquals(1, session.getUsers().size());</span>
+<span class="fc" id="L107">        verify(sessionRepository).save(session);</span>
+<span class="fc" id="L108">    }</span>
+
+    @Test
+    void participate_shouldThrowNotFound_whenSessionNotFound() {
+<span class="fc" id="L112">        when(sessionRepository.findById(1L)).thenReturn(Optional.empty());</span>
+
+<span class="fc" id="L114">        assertThrows(NotFoundException.class,</span>
+<span class="nc" id="L115">                () -&gt; sessionService.participate(1L, 2L));</span>
+<span class="fc" id="L116">    }</span>
+
+    @Test
+    void participate_shouldThrowNotFound_whenUserNotFound() {
+<span class="fc" id="L120">        Session session = new Session();</span>
+<span class="fc" id="L121">        session.setUsers(new ArrayList&lt;&gt;());</span>
+
+<span class="fc" id="L123">        when(sessionRepository.findById(1L)).thenReturn(Optional.of(session));</span>
+<span class="fc" id="L124">        when(userRepository.findById(2L)).thenReturn(Optional.empty());</span>
+
+<span class="fc" id="L126">        assertThrows(NotFoundException.class,</span>
+<span class="nc" id="L127">                () -&gt; sessionService.participate(1L, 2L));</span>
+<span class="fc" id="L128">    }</span>
+
+    @Test
+    void participate_shouldThrowBadRequest_whenAlreadyParticipating() {
+<span class="fc" id="L132">        User user = new User();</span>
+<span class="fc" id="L133">        user.setId(2L);</span>
+
+<span class="fc" id="L135">        Session session = new Session();</span>
+<span class="fc" id="L136">        session.setUsers(new ArrayList&lt;&gt;(List.of(user)));</span>
+
+<span class="fc" id="L138">        when(sessionRepository.findById(1L)).thenReturn(Optional.of(session));</span>
+<span class="fc" id="L139">        when(userRepository.findById(2L)).thenReturn(Optional.of(user));</span>
+
+<span class="fc" id="L141">        assertThrows(BadRequestException.class,</span>
+<span class="nc" id="L142">                () -&gt; sessionService.participate(1L, 2L));</span>
+<span class="fc" id="L143">    }</span>
+    @Test
+    void noLongerParticipate_shouldRemoveUser() {
+<span class="fc" id="L146">        User user = new User();</span>
+<span class="fc" id="L147">        user.setId(2L);</span>
+
+<span class="fc" id="L149">        Session session = new Session();</span>
+<span class="fc" id="L150">        session.setUsers(new ArrayList&lt;&gt;(List.of(user)));</span>
+
+<span class="fc" id="L152">        when(sessionRepository.findById(1L)).thenReturn(Optional.of(session));</span>
+
+<span class="fc" id="L154">        sessionService.noLongerParticipate(1L, 2L);</span>
+
+<span class="fc" id="L156">        assertTrue(session.getUsers().isEmpty());</span>
+<span class="fc" id="L157">        verify(sessionRepository).save(session);</span>
+<span class="fc" id="L158">    }</span>
+
+    @Test
+    void noLongerParticipate_shouldThrowNotFound_whenSessionNotFound() {
+<span class="fc" id="L162">        when(sessionRepository.findById(1L)).thenReturn(Optional.empty());</span>
+
+<span class="fc" id="L164">        assertThrows(NotFoundException.class,</span>
+<span class="nc" id="L165">                () -&gt; sessionService.noLongerParticipate(1L, 2L));</span>
+<span class="fc" id="L166">    }</span>
+
+    @Test
+    void noLongerParticipate_shouldThrowBadRequest_whenUserNotParticipating() {
+<span class="fc" id="L170">        Session session = new Session();</span>
+<span class="fc" id="L171">        session.setUsers(new ArrayList&lt;&gt;());</span>
+
+<span class="fc" id="L173">        when(sessionRepository.findById(1L)).thenReturn(Optional.of(session));</span>
+
+<span class="fc" id="L175">        assertThrows(BadRequestException.class,</span>
+<span class="nc" id="L176">                () -&gt; sessionService.noLongerParticipate(1L, 2L));</span>
+<span class="fc" id="L177">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

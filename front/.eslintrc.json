@@ -10,7 +10,8 @@
       ],
       "parserOptions": {
         "project": [
-          "tsconfig.json"
+          "front/tsconfig.json", 
+          "front/tsconfig.spec.json"
         ],
         "createDefaultProgram": true
       },
