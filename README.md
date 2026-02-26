@@ -24,7 +24,7 @@ The project covers:
 | Area | Description |
 |------|-------------|
 | **Frontend** | Angular 14, RxJS 7 |
-| **Backend** | Spring Boot 2.6, Java 8 |
+| **Backend** | Spring Boot 2.6, Java 11 |
 | **Security** | Spring Security + JWT (stateless authentication) |
 | **Database** | MySQL |
 | **ORM** | Spring Data JPA (Hibernate) |
